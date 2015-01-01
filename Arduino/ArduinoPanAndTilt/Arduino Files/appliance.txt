@@ -1,0 +1,172 @@
+#include <Servo.h>
+#include <Adafruit_NeoPixel.h>
+
+unsigned long serialdata;
+int inbyte;
+int servoPose;
+int servoPoses[80] = {};
+int attachedServos[80] = {};
+int servoPin;
+int pinNumber;
+int sensorVal;
+int analogRate;
+int digitalState;
+Servo myservo[] = {};
+
+// NeoPixel setup
+#define PIN            6
+// How many NeoPixels are attached to the Arduino?
+#define NUMPIXELS      12
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+int ledIndex;
+int pixelPin;
+int ledRed;
+int ledGreen;
+int ledBlue;
+
+void setup()
+{
+  Serial.begin(9600);
+  pixels.begin(); // This initializes the NeoPixel library.
+}
+
+void loop()  {
+   getSerial();
+   switch(serialdata)    {
+      case 1:      {
+         //analog digital write
+         getSerial();
+         switch (serialdata)        {
+            case 1:          {
+               //analog write
+               getSerial();
+               pinNumber = serialdata;
+               getSerial();
+               analogRate = serialdata;
+               pinMode(pinNumber, OUTPUT);
+               analogWrite(pinNumber, analogRate);
+               pinNumber = 0;
+               break;
+            }
+            case 2:          {
+               //digital write
+               getSerial();
+               pinNumber = serialdata;
+               getSerial();
+               digitalState = serialdata;
+               pinMode(pinNumber, OUTPUT);
+               if (digitalState == 1)   {
+                  digitalWrite(pinNumber, LOW);
+               }
+               if (digitalState == 2)  {
+                  digitalWrite(pinNumber, HIGH);
+               }
+               pinNumber = 0;
+               break;
+            }
+         }
+         break; 
+      }
+      case 2:  {
+         getSerial();
+         switch (serialdata)  {
+            case 1:  {
+               //analog read
+               getSerial();
+               pinNumber = serialdata;
+               pinMode(pinNumber, INPUT);
+               sensorVal = analogRead(pinNumber);
+               Serial.println(sensorVal);
+               sensorVal = 0;
+               pinNumber = 0;
+               break;
+            } 
+            case 2:  {
+                //digital read
+                getSerial();
+                pinNumber = serialdata;
+                pinMode(pinNumber, INPUT);
+                sensorVal = digitalRead(pinNumber);
+                Serial.println(sensorVal);
+                sensorVal = 0;
+                pinNumber = 0;
+                break;
+            }
+         }
+         break;
+      }
+      case 3:  {
+         getSerial();
+         switch (serialdata)  {
+            case 1:  {
+                //servo read
+                getSerial();
+                servoPin = serialdata;
+                Serial.println(servoPoses[servoPin]);
+                break;
+            }
+            case 2:  {
+               //servo write
+               getSerial();
+               servoPin = serialdata;
+               getSerial();
+               servoPose = serialdata;
+               if (attachedServos[servoPin] == 1)  {
+                  myservo[servoPin].write(servoPose);
+               }
+               if (attachedServos[servoPin] == 0)  {
+                  Servo s1;
+                  myservo[servoPin] = s1;
+                  myservo[servoPin].attach(servoPin);
+                  myservo[servoPin].write(servoPose);
+                  attachedServos[servoPin] = 1;
+               }
+               servoPoses[servoPin] = servoPose;
+               break;
+            }
+            case 3:  {
+               //detach
+               getSerial();
+               servoPin = serialdata;
+               if (attachedServos[servoPin] == 1)  {
+                  myservo[servoPin].detach();
+                  attachedServos[servoPin] = 0;  
+               }
+            }
+         }
+      break;
+      }
+      case 4:  {
+         getSerial();
+         pixelPin = serialdata;
+         getSerial();
+         ledIndex = serialdata;
+         getSerial();
+         ledRed = serialdata;
+         getSerial();
+         ledGreen = serialdata;
+         getSerial();
+         ledBlue = serialdata;
+         pixels.setPin(pixelPin);
+         pixels.setPixelColor(ledIndex, pixels.Color(ledRed,ledGreen,ledBlue)); 
+         pixels.show(); // This sends the updated pixel color to the hardware.
+
+      }
+   }
+}
+
+long getSerial()
+{
+  serialdata = 0;
+  while (inbyte != '/')
+  {
+    inbyte = Serial.read(); 
+    if (inbyte > 0 && inbyte != '/')
+    {
+     
+      serialdata = serialdata * 10 + inbyte - '0';
+    }
+  }
+  inbyte = 0;
+  return serialdata;
+}
