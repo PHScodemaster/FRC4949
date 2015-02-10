@@ -44,23 +44,22 @@ public class RobotMap {
         LiveWindow.addActuator("Pneumatics", "Extend Grips", pneumaticsExtendGrips);
         
         pneumaticsCompressor = new Compressor(0);
-        
-        
+                
         pneumaticsPneumaticSpike = new Relay(0);
         LiveWindow.addActuator("Pneumatics", "Pneumatic Spike", pneumaticsPneumaticSpike);
-        
-        driveTrainRightRear = new Victor(3);
-        LiveWindow.addActuator("Drive Train", "RightRear", (Victor) driveTrainRightRear);
-        
+                 
+        driveTrainLeftFront = new Victor(0);
+        LiveWindow.addActuator("Drive Train", "LeftFront", (Victor) driveTrainLeftFront);
+
         driveTrainLeftRear = new Victor(1);
         LiveWindow.addActuator("Drive Train", "LeftRear", (Victor) driveTrainLeftRear);
         
-        driveTrainLeftFront = new Victor(0);
-        LiveWindow.addActuator("Drive Train", "LeftFront", (Victor) driveTrainLeftFront);
-        
         driveTrainRightFront = new Victor(2);
         LiveWindow.addActuator("Drive Train", "RightFront", (Victor) driveTrainRightFront);
-        
+
+        driveTrainRightRear = new Victor(3);
+        LiveWindow.addActuator("Drive Train", "RightRear", (Victor) driveTrainRightRear);
+      
         driveTrainRobotDrive41 = new RobotDrive(driveTrainLeftFront, driveTrainLeftRear,
               driveTrainRightFront, driveTrainRightRear);
         
